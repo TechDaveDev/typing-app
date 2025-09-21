@@ -1,0 +1,1 @@
+export type CharState = 'untouched' | 'correct' | 'incorrect';
