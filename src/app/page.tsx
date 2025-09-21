@@ -6,12 +6,14 @@ import { useTypingTest } from "@/hooks/useTypingTest";
 const INITIAL_TEXT = "hola mundo esta es una prueba de escritura para medir tu velocidad y precision al teclear";
 
 import { NextPage } from "next";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 
 const TypingTutorPage: NextPage = () => {
   const { characters, currentIndex, wpm, accuracy, isFinished, correctedIndexesRef, restartTest } = useTypingTest(INITIAL_TEXT);
-
   const restartButtonRef = useRef<HTMLButtonElement>(null);
+
+  const words = useMemo(() => INITIAL_TEXT.split(' '), []);
+  let charIndexCounter = 0;
 
   const handleRestart = () => {
     restartTest();
@@ -35,24 +37,41 @@ const TypingTutorPage: NextPage = () => {
         </div>
 
         <div className="bg-gray-800 p-6 md:p-8 rounded-lg shadow-lg w-full">
-          <div className="tracking-widest leading-relaxed whitespace-pre-wrap">
-            {characters.map(({ char, state }, index) => (
-              <MemoizedCharacter
-                key={`${char}-${index}`}
-                char={char}
-                state={state}
-                isCurrent={index === currentIndex}
-                wasCorrected={state === 'correct' && correctedIndexesRef.current.has(index)}
-              />
+          <div className="flex flex-wrap tracking-widest leading-relaxed">
+            {words.map((word, wordIdx) => (
+              <div key={wordIdx} className="flex">
+                {word.split('').map(() => {
+                  const charData = characters[charIndexCounter];
+                  const globalIndex = charIndexCounter++;
+                  return (
+                    <MemoizedCharacter
+                      key={globalIndex}
+                      char={charData.char}
+                      state={charData.state}
+                      isCurrent={globalIndex === currentIndex}
+                      wasCorrected={charData.state === 'correct' && correctedIndexesRef.current.has(globalIndex)}
+                    />
+                  );
+                })}
+                {wordIdx < words.length - 1 && (() => {
+                  const charData = characters[charIndexCounter];
+                  const globalIndex = charIndexCounter++;
+                  return (
+                    <MemoizedCharacter
+                      key={globalIndex}
+                      char={charData.char}
+                      state={charData.state}
+                      isCurrent={globalIndex === currentIndex}
+                      wasCorrected={charData.state === 'correct' && correctedIndexesRef.current.has(globalIndex)}
+                    />
+                  );
+                })()}
+              </div>
             ))}
           </div>
         </div>
 
-        <button
-          ref={restartButtonRef}
-          onClick={handleRestart}
-          className="mt-4 px-6 py-3 bg-yellow-500 text-gray-900 font-bold text-lg rounded-lg hover:bg-yellow-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-300 shadow-md"
-        >
+        <button ref={restartButtonRef} onClick={handleRestart} className="mt-4 px-6 py-3 bg-yellow-500 text-gray-900 font-bold text-lg rounded-lg hover:bg-yellow-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-300 shadow-md">
           Reiniciar
         </button>
 
@@ -62,7 +81,6 @@ const TypingTutorPage: NextPage = () => {
             <p>Presiona Reiniciar para volver a intentarlo.</p>
           </div>
         )}
-
       </div>
     </div>
   );
