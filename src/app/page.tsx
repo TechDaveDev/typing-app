@@ -1,103 +1,71 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { MemoizedCharacter } from "@/components/MemoizedCharacter";
+import { useTypingTest } from "@/hooks/useTypingTest";
+
+const INITIAL_TEXT = "hola mundo esta es una prueba de escritura para medir tu velocidad y precision al teclear";
+
+import { NextPage } from "next";
+import { useRef } from "react";
+
+const TypingTutorPage: NextPage = () => {
+  const { characters, currentIndex, wpm, accuracy, isFinished, correctedIndexesRef, restartTest } = useTypingTest(INITIAL_TEXT);
+
+  const restartButtonRef = useRef<HTMLButtonElement>(null);
+
+  const handleRestart = () => {
+    restartTest();
+    restartButtonRef.current?.blur();
+  };
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center font-sans p-4">
+      <div className="w-full max-w-4xl mx-auto flex flex-col items-center gap-8">
+        <h1 className="text-4xl md:text-5xl font-bold text-gray-200 tracking-wider">Typing Test</h1>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+        <div className="grid grid-cols-2 gap-4 md:gap-8 w-full max-w-md bg-gray-800 p-6 rounded-lg shadow-lg">
+          <div className="text-center">
+            <p className="text-gray-400 text-lg">Velocidad</p>
+            <p className="text-yellow-400 text-4xl md:text-5xl font-bold">{wpm} <span className="text-2xl">WPM</span></p>
+          </div>
+          <div className="text-center">
+            <p className="text-gray-400 text-lg">Precisión</p>
+            <p className="text-yellow-400 text-4xl md:text-5xl font-bold">{accuracy}%</p>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+
+        <div className="bg-gray-800 p-6 md:p-8 rounded-lg shadow-lg w-full">
+          <div className="tracking-widest leading-relaxed whitespace-pre-wrap">
+            {characters.map(({ char, state }, index) => (
+              <MemoizedCharacter
+                key={`${char}-${index}`}
+                char={char}
+                state={state}
+                isCurrent={index === currentIndex}
+                wasCorrected={state === 'correct' && correctedIndexesRef.current.has(index)}
+              />
+            ))}
+          </div>
+        </div>
+
+        <button
+          ref={restartButtonRef}
+          onClick={handleRestart}
+          className="mt-4 px-6 py-3 bg-yellow-500 text-gray-900 font-bold text-lg rounded-lg hover:bg-yellow-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-300 shadow-md"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          Reiniciar
+        </button>
+
+        {isFinished && (
+          <div className="mt-4 p-4 bg-green-900/50 border border-green-500 text-green-300 rounded-lg text-center">
+            <p className="font-bold">¡Test completado!</p>
+            <p>Presiona Reiniciar para volver a intentarlo.</p>
+          </div>
+        )}
+
+      </div>
     </div>
   );
-}
+};
+
+export default TypingTutorPage;
