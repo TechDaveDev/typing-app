@@ -100,12 +100,6 @@ const TypingTutorPage: NextPage = () => {
               ))}
             </div>
           </div>
-
-          {currentIndex === 0 && !isFinished && (
-            <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 text-slate-400 dark:text-slate-500 text-sm font-medium animate-bounce">
-              Presiona cualquier tecla para comenzar...
-            </div>
-          )}
         </div>
 
         <div className="flex flex-col items-center gap-6">
